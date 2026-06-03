@@ -1,0 +1,9 @@
+﻿global using TaskHub.Business.Services;
+global using TaskHub.Business.DataModels;
+global using TaskHub.Business.DataModels.User;
+global using TaskHub.Business.DataModels.Team;
+global using TaskHub.Business.Services.Interfaces;
+global using TaskHub.Data;
+global using TaskHub.Data.Entities;
+global using TaskHub.Data.Repositories;
+global using TaskHub.Data.Repositories.Interfaces;
