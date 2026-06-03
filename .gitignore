@@ -35,11 +35,7 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-.git/
 TaskHub.Tests/
-bin/
-obj/
-Migrations/
 
 .json
 
@@ -369,3 +365,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/TaskHub.API/appsettings.Development.json
