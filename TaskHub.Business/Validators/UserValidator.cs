@@ -4,8 +4,7 @@ using TaskHub.Business.Results;
 
 namespace TaskHub.Business.Validators;
 
-public class UserValidator : 
-    IValidator<UserRegisterRequest>, IValidator<UserLoginRequest>
+public class UserValidator : IUserValidator
 {
     public Result<bool> Validate(UserRegisterRequest request)
     {

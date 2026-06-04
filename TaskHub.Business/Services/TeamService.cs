@@ -1,13 +1,14 @@
 ﻿using TaskHub.Business.DataModels.Team;
 using TaskHub.Business.Mappers;
 using TaskHub.Business.Results;
+using TaskHub.Business.Services.Interfaces;
 using TaskHub.Business.Validators;
 using TaskHub.Data.Entities;
 using TaskHub.Data.Repositories.Interfaces;
 
 namespace TaskHub.Business.Services;
 
-public class TeamService
+public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IValidator<TeamRequest> _validator;
@@ -82,6 +83,7 @@ public class TeamService
                 "An error occurred while creating the team");
         }
     }
+
     public async Task<Result<string>> DeleteTeam(Guid id, string userId)
     {
         try
@@ -92,7 +94,7 @@ public class TeamService
                 return Result.Failure<string>("Team not found");
             }
 
-            if (!userId.Equals(team.OwnerId.ToString()))
+            if (team.OwnerId != Guid.Parse(userId))
             {
                 return Result.Failure<string>("Only owner can delete team");
             }
@@ -103,6 +105,60 @@ public class TeamService
         catch
         {
             return Result.Failure<string>("An error occurred while deleting the team");
+        }
+    }
+
+    public async Task<Result<string>> JoinTeam(Guid teamId, Guid userId)
+    {
+        Team? team = await _teamRepository.GetWithMembers(teamId);
+        if (team == null)
+        {
+            return Result.Failure<string>("This team doesn`t exist");
+        }
+
+        if (userId == team.OwnerId || 
+            team.TeamMembers.Any(tm => tm.UserId == userId))
+        {
+            return Result.Failure<string>("You are already in a team");
+        }
+
+        try
+        {
+            await _teamRepository.AddMember(new TeamMember(userId, teamId));
+            return Result.Success("User was added to team");
+        }
+        catch
+        {
+            return Result.Failure<string>("Error occured while adding to team");
+        }
+    }
+
+    public async Task<Result<string>> LeaveTeam(Guid teamId, Guid userId)
+    {
+        Team? team = await _teamRepository.GetWithMembers(teamId);
+        if (team == null)
+        {
+            return Result.Failure<string>("This team doesn`t exist");
+        }
+
+        if (team.OwnerId == userId)
+        {
+            return Result.Failure<string>("Owner can't leave team");
+        }
+
+        if (!team.TeamMembers.Any(tm => tm.UserId == userId))
+        {
+            return Result.Failure<string>("You are not a member of this team");
+        }
+
+        try
+        {
+            await _teamRepository.RemoveMember(new TeamMember(userId, teamId));
+            return Result.Success("User was removed from team");
+        }
+        catch
+        {
+            return Result.Failure<string>("Error occured while removing from team");
         }
     }
 }

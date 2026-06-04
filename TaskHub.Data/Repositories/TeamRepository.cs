@@ -22,9 +22,9 @@ public class TeamRepository
             .ToListAsync();
     }
 
-    public Task<Team?> GetById(Guid id)
+    public async Task<Team?> GetById(Guid id)
     {
-        return _context.Teams
+        return await _context.Teams
             .Include(t => t.Owner)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
@@ -61,30 +61,23 @@ public class TeamRepository
         }
     }
 
-    public async Task AddUserToTeam(Guid teamId, Guid userId)
+    public async Task<Team?> GetWithMembers(Guid teamId)
     {
-        Team? team = await _context.Teams
+        return await _context.Teams
             .Include(t => t.TeamMembers)
+            .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == teamId);
-
-        if (team != null)
-        {
-            team.TeamMembers.Add(
-                new TeamMember(userId, teamId));
-
-            await _context.SaveChangesAsync();
-        }
     }
 
-    public async Task RemoveMember(Guid teamId, Guid userId)
+    public async Task RemoveMember(TeamMember membership)
     {
-        TeamMember? membership = await _context.TeamMembers
-            .FirstOrDefaultAsync(tm => tm.UserId == userId && tm.TeamId == teamId);
+        _context.TeamMembers.Remove(membership);
+        await _context.SaveChangesAsync();
+    }
 
-        if (membership != null)
-        {
-            _context.TeamMembers.Remove(membership);
-            await _context.SaveChangesAsync();
-        }
+    public async Task AddMember(TeamMember member)
+    {
+        await _context.TeamMembers.AddAsync(member);
+        await _context.SaveChangesAsync();
     }
 }

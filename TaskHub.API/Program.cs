@@ -3,8 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 using TaskHub.Business.Validators;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -21,17 +21,21 @@ JwtSettings jwtSettings = new(
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(option => 
+builder.Services.AddControllers().AddJsonOptions(option =>
     option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-builder.Services.AddDbContext<AppDbContext>(options => 
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddAuthentication(
-    JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = 
+        options.TokenValidationParameters =
             new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -43,7 +47,7 @@ builder.Services.AddAuthentication(
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(jwtSettings.Key))
             };
-    }); 
+    });
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
@@ -63,11 +67,11 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 
-builder.Services.AddScoped<UserValidator>();
-builder.Services.AddScoped<IValidator<TeamRequest>, TeamValidator>();
+builder.Services.AddScoped<IUserValidator, UserValidator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<TeamService>();
+builder.Services.AddScoped<IValidator<TeamRequest>, TeamValidator>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 var app = builder.Build();
 
@@ -87,7 +91,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

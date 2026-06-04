@@ -19,11 +19,11 @@ public class AuthService : IAuthService
     private readonly JwtSettings _jwtSettings;
     private readonly IJwtService _jwtService;
     private readonly UserManager<User> _userManager;
-    private readonly UserValidator _validator;
+    private readonly IUserValidator _validator;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
     public AuthService(JwtSettings jwtSettings,
-        UserValidator validator,
+        IUserValidator validator,
         IRefreshTokenRepository refreshTokenRepository,
         IJwtService jwtService, UserManager<User> userManager)
     {
