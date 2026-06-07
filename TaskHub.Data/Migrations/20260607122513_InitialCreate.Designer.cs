@@ -12,7 +12,7 @@ using TaskHub.Data;
 namespace TaskHub.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260530145844_InitialCreate")]
+    [Migration("20260607122513_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -206,11 +206,16 @@ namespace TaskHub.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -221,6 +226,8 @@ namespace TaskHub.Data.Migrations
                     b.HasIndex("AssignedUserId");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("TeamId");
 
                     b.HasIndex("Status", "Priority");
 
@@ -244,12 +251,7 @@ namespace TaskHub.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("Teams");
                 });
@@ -264,6 +266,10 @@ namespace TaskHub.Data.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "TeamId");
 
@@ -423,20 +429,17 @@ namespace TaskHub.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TaskHub.Data.Entities.Team", "Team")
+                        .WithMany("Tasks")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AssignedUser");
 
                     b.Navigation("Author");
-                });
 
-            modelBuilder.Entity("TaskHub.Data.Entities.Team", b =>
-                {
-                    b.HasOne("TaskHub.Data.Entities.User", "Owner")
-                        .WithMany("OwnedTeams")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("TaskHub.Data.Entities.TeamMember", b =>
@@ -460,6 +463,8 @@ namespace TaskHub.Data.Migrations
 
             modelBuilder.Entity("TaskHub.Data.Entities.Team", b =>
                 {
+                    b.Navigation("Tasks");
+
                     b.Navigation("TeamMembers");
                 });
 
@@ -468,8 +473,6 @@ namespace TaskHub.Data.Migrations
                     b.Navigation("AssignedTasks");
 
                     b.Navigation("AuthoredTasks");
-
-                    b.Navigation("OwnedTeams");
 
                     b.Navigation("RefreshTokens");
 

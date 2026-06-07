@@ -12,7 +12,6 @@ public static class TeamMapper
             Id = team.Id,
             Name = team.Name,
             Description = team.Description,
-            OwnerId = team.OwnerId
         };
     }
 
@@ -20,7 +19,6 @@ public static class TeamMapper
     {
         return new Team(
             request.Name,
-            request.Description,
-            request.OwnerId);
+            request.Description);
     }
 }

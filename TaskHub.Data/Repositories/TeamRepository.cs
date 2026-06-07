@@ -17,7 +17,6 @@ public class TeamRepository
     public async Task<IEnumerable<Team>> GetAll()
     {
         return await _context.Teams
-            .Include(t => t.Owner)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -25,7 +24,6 @@ public class TeamRepository
     public async Task<Team?> GetById(Guid id)
     {
         return await _context.Teams
-            .Include(t => t.Owner)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 

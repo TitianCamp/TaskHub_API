@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TaskHub.Business.Results;
 
 namespace TaskHub.API.Controllers;
 
@@ -11,9 +10,9 @@ namespace TaskHub.API.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TeamController : ControllerBase
 {
-    private readonly TeamService _teamService;
+    private readonly ITeamService _teamService;
 
-    public TeamController(TeamService teamService)
+    public TeamController(ITeamService teamService)
     {
         _teamService = teamService;
     }
@@ -21,8 +20,7 @@ public class TeamController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        Result<List<TeamResponce>> result = await
-            _teamService.GetAllTeams();
+        var result = await _teamService.GetAllTeams();
 
         if (result.IsSuccess)
         {
@@ -37,7 +35,7 @@ public class TeamController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        Result<TeamResponce> result = await _teamService.GetTeamById(id);
+        var result = await _teamService.GetTeamById(id);
 
         if (result.IsSuccess)
         {
@@ -60,10 +58,7 @@ public class TeamController : ControllerBase
             return Unauthorized("User ID not found in token.");
         }
 
-        request.OwnerId = Guid.Parse(userId);
-
-        Result<TeamResponce> result = await
-            _teamService.CreateTeam(request);
+        var result = await _teamService.CreateTeam(request, Guid.Parse(userId));
         if (result.IsSuccess)
         {
             return Ok(result.Value);
@@ -84,7 +79,7 @@ public class TeamController : ControllerBase
             return Unauthorized("User ID not found in token.");
         }
 
-        Result<string> result = await _teamService.DeleteTeam(id, userId);
+        var result = await _teamService.DeleteTeam(id, Guid.Parse(userId));
         if (result.IsSuccess)
         {
             return Ok(result.Value);
@@ -105,7 +100,7 @@ public class TeamController : ControllerBase
             return Unauthorized("User ID not found in token.");
         }
 
-        Result<string> result = await _teamService.JoinTeam(id, Guid.Parse(userId));
+        var result = await _teamService.JoinTeam(id, Guid.Parse(userId));
         if (result.IsSuccess)
         {
             return Ok(result.Value);
@@ -126,7 +121,7 @@ public class TeamController : ControllerBase
             return Unauthorized("User ID not found in token.");
         }
 
-        Result<string> result = await _teamService.LeaveTeam(id, Guid.Parse(userId));
+        var result = await _teamService.LeaveTeam(id, Guid.Parse(userId));
         if (result.IsSuccess)
         {
             return Ok(result.Value);

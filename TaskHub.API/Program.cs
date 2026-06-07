@@ -73,6 +73,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidator<TeamRequest>, TeamValidator>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 
+builder.Services.AddScoped<TaskService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

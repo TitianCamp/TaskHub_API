@@ -12,7 +12,6 @@ public class User : IdentityUser<Guid>
     public ICollection<TeamMember> TeamMemberships { get; set; } = [];
     public ICollection<TaskItem> AuthoredTasks { get; set; } = [];
     public ICollection<TaskItem> AssignedTasks { get; set; } = [];
-    public ICollection<Team> OwnedTeams { get; set; } = [];
 
     public User()
     { }

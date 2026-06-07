@@ -21,11 +21,6 @@ public class TeamValidator : IValidator<TeamRequest>
             return Result.Failure<bool>("Team description is required");
         }
 
-        if (request.OwnerId == Guid.Empty)
-        {
-            return Result.Failure<bool>("Owner ID is required");
-        }
-
         return Result.Success(true);
     }
 }

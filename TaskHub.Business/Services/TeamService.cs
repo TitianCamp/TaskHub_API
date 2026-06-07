@@ -63,7 +63,7 @@ public class TeamService : ITeamService
         }
     }
 
-    public async Task<Result<TeamResponce>> CreateTeam(TeamRequest request)
+    public async Task<Result<TeamResponce>> CreateTeam(TeamRequest request, Guid userId)
     {
         Result<bool> validationResult = _validator.Validate(request);
         if (!validationResult.IsSuccess)
@@ -74,6 +74,9 @@ public class TeamService : ITeamService
         try
         {
             Team team = request.ToEntity();
+            TeamMember owner = new(userId, team.Id, TeamRole.Owner);
+            team.TeamMembers.Add(owner);
+
             await _teamRepository.Add(team);
             return Result.Success(team.ToDto());
         }
@@ -84,7 +87,7 @@ public class TeamService : ITeamService
         }
     }
 
-    public async Task<Result<string>> DeleteTeam(Guid id, string userId)
+    public async Task<Result<string>> DeleteTeam(Guid id, Guid userId)
     {
         try
         {
@@ -94,7 +97,7 @@ public class TeamService : ITeamService
                 return Result.Failure<string>("Team not found");
             }
 
-            if (team.OwnerId != Guid.Parse(userId))
+            if (!team.TeamMembers.Any(tm => tm.UserId == userId && tm.Role == TeamRole.Owner))
             {
                 return Result.Failure<string>("Only owner can delete team");
             }
@@ -116,8 +119,7 @@ public class TeamService : ITeamService
             return Result.Failure<string>("This team doesn`t exist");
         }
 
-        if (userId == team.OwnerId || 
-            team.TeamMembers.Any(tm => tm.UserId == userId))
+        if (team.TeamMembers.Any(tm => tm.UserId == userId))
         {
             return Result.Failure<string>("You are already in a team");
         }
@@ -141,7 +143,7 @@ public class TeamService : ITeamService
             return Result.Failure<string>("This team doesn`t exist");
         }
 
-        if (team.OwnerId == userId)
+        if (team.TeamMembers.Any(tm=>tm.UserId == userId && tm.Role == TeamRole.Owner))
         {
             return Result.Failure<string>("Owner can't leave team");
         }

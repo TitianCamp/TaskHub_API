@@ -32,13 +32,11 @@ public class AppDbContext
             .HasOne(tm => tm.Team)
             .WithMany(t => t.TeamMembers)
             .HasForeignKey(tm => tm.TeamId);
+        builder.Entity<TeamMember>()
+            .Property(tm => tm.Role)
+            .HasConversion<string>();
 
         //Team Configuring
-        builder.Entity<Team>()
-            .HasOne(t => t.Owner)
-            .WithMany(u => u.OwnedTeams)
-            .HasForeignKey(t => t.OwnerId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         //RefreshToken Configuring
         builder.Entity<RefreshToken>()
@@ -62,9 +60,21 @@ public class AppDbContext
             .WithMany(u => u.AssignedTasks)
             .HasForeignKey(ti => ti.AssignedUserId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<TaskItem>()
+            .HasOne(ti => ti.Team)
+            .WithMany(t => t.Tasks)
+            .HasForeignKey(ti => ti.TeamId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<TaskItem>()
-            .HasIndex(ti => new {ti.Status, ti.Priority});
+            .HasIndex(ti => new { ti.Status, ti.Priority });
+
+        builder.Entity<TaskItem>()
+            .Property(ti => ti.Status)
+            .HasConversion<string>();
+        builder.Entity<TaskItem>()
+            .Property(ti => ti.Priority)
+            .HasConversion<string>();
 
         base.OnModelCreating(builder);
     }

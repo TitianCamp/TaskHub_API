@@ -6,46 +6,80 @@ namespace TaskHub.API.Controllers;
 [Route("[controller]")]
 public class TaskController : ControllerBase
 {
+    private readonly TaskService _taskService;
 
-    [HttpGet("tasks")]
-    public IActionResult Get()
+    public TaskController(TaskService taskService)
     {
-        return Ok("Get all tasks");
+        _taskService = taskService;
     }
 
-    [HttpGet("tasks/{id}")]
-    public IActionResult GetById(Guid id)
+    [HttpGet]
+    public async Task<IActionResult> Get()
     {
-        return Ok($"Get task with ID: {id}");
+        var result = await _taskService.GetAllTasks();
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value!);
+        }
+        else
+        {
+            return BadRequest(result.Error!);
+        }
     }
 
-    [HttpGet("tasks/search")]
-    public IActionResult GetByStatusOrPriority(
-        [FromQuery] TaskItemStatus? taskStatus, 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _taskService.GetById(id);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value!);
+        }
+        else
+        {
+            return BadRequest(result.Error!);
+        }
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> GetByStatusOrPriority(
+        [FromQuery] TaskItemStatus? taskStatus,
         [FromQuery] TaskItemPriority? taskPriority)
     {
-        return Ok($"Get tasks with Status: {taskStatus} or Priority: {taskPriority}");
+        var result = await _taskService
+            .GetByStatusOrPriority(taskStatus, taskPriority);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value!);
+        }
+        else
+        {
+            return BadRequest(result.Error!);
+        }
     }
 
-    [HttpPost("tasks")]
+    [HttpPost]
     public IActionResult CreateTask()
     {
         return Ok("Create a new task");
     }
 
-    [HttpPatch("tasks/{id}/take")]
+    [HttpPatch("{id}/take")]
     public IActionResult TakeTask(Guid id)
     {
         return Ok($"Take task with ID: {id}");
     }
 
-    [HttpPatch("tasks/{id}/update")]
+    [HttpPatch("{id}/update")]
     public IActionResult UpdateTask(Guid id)
     {
         return Ok($"Update task with ID: {id}");
     }
 
-    [HttpDelete("tasks/{id}")]
+    [HttpDelete("{id}")]
     public IActionResult DeleteTask(Guid id)
     {
         return Ok($"Delete task with ID: {id}");
