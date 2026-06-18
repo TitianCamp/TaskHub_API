@@ -31,11 +31,12 @@ public class TaskItemRepository
             .FirstOrDefaultAsync(ti => ti.Id == id);
     }
 
-    public async Task<IEnumerable<TaskItem>> GetByStatusAndPriority(
+    public async Task<IEnumerable<TaskItem>> GetFilteredTasks(Guid teamId,
         TaskItemStatus? taskStatus, TaskItemPriority? taskPriority)
     {
         IQueryable<TaskItem> query = _context.TaskItems
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(ti => ti.TeamId == teamId);
 
         if (taskStatus.HasValue)
         {
@@ -48,6 +49,14 @@ public class TaskItemRepository
         }
 
         return await query.ToListAsync();
+    }
+
+    public async Task<IEnumerable<TaskItem>> GetForTeam(Guid teamId)
+    {
+        return await _context.TaskItems
+            .AsNoTracking()
+            .Where(ti => ti.TeamId == teamId)
+            .ToListAsync();
     }
 
     public async Task Add(TaskItem entity)

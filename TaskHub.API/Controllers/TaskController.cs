@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TaskHub.Business.DataModels.TaskItem;
 
 namespace TaskHub.API.Controllers;
 
-[ApiController]
-[Route("[controller]")]
-public class TaskController : ControllerBase
+public class TaskController : BaseApiController
 {
     private readonly TaskService _taskService;
 
@@ -13,58 +13,51 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    [HttpGet("{teamId}/tasks")]
+    public async Task<IActionResult> GetByStatusOrPriority(
+        Guid teamId,
+        [FromQuery] TaskItemStatus? taskStatus,
+        [FromQuery] TaskItemPriority? taskPriority)
     {
-        var result = await _taskService.GetAllTasks();
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
 
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value!);
-        }
-        else
-        {
-            return BadRequest(result.Error!);
-        }
+        var result = await _taskService
+            .GetFilteredTasks(userId.Value, teamId, taskStatus, taskPriority);
+
+        return SendResult(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _taskService.GetById(id);
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
 
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value!);
-        }
-        else
-        {
-            return BadRequest(result.Error!);
-        }
-    }
+        var result = await _taskService.GetById(id, userId.Value);
 
-    [HttpGet("search")]
-    public async Task<IActionResult> GetByStatusOrPriority(
-        [FromQuery] TaskItemStatus? taskStatus,
-        [FromQuery] TaskItemPriority? taskPriority)
-    {
-        var result = await _taskService
-            .GetByStatusOrPriority(taskStatus, taskPriority);
-
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value!);
-        }
-        else
-        {
-            return BadRequest(result.Error!);
-        }
+        return SendResult(result);
     }
 
     [HttpPost]
-    public IActionResult CreateTask()
+    public async Task<IActionResult> CreateTask(
+        [FromBody] TaskCreateRequest request)
     {
-        return Ok("Create a new task");
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+
+        var result = await _taskService.CreateTask(request, userId.Value);
+
+        return SendResult(result);
     }
 
     [HttpPatch("{id}/take")]

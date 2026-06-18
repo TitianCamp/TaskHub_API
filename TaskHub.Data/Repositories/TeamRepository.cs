@@ -78,4 +78,16 @@ public class TeamRepository
         await _context.TeamMembers.AddAsync(member);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> IsMember(Guid userId, Guid teamId)
+    {
+        TeamMember? finded = await _context
+            .TeamMembers.FindAsync(userId, teamId);
+
+        if (finded != null)
+        {
+            return true;
+        }
+        return false;
+    }
 }

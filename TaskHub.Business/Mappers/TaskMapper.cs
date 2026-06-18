@@ -18,4 +18,18 @@ public static class TaskMapper
             IsAvailable = task.AssignedUserId == null
         };
     }
+
+    public static TaskItem ToEntity(this TaskCreateRequest task, Guid userId)
+    {
+        DateTime deadlineUtc = DateTime
+            .SpecifyKind(task.Deadline, DateTimeKind.Utc);
+
+        return new TaskItem(
+            task.Title,
+            task.Description,
+            task.Priority,
+            deadlineUtc,
+            userId,
+            task.TeamId);
+    }
 }
