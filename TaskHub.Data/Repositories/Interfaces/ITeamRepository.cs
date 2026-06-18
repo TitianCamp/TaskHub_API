@@ -10,4 +10,5 @@ public interface ITeamRepository
     Task RemoveMember(TeamMember membership);
     Task AddMember(TeamMember member);
     Task<bool> IsMember(Guid userId, Guid teamId);
+    Task<bool> IsOwner(Guid userId, Guid teamId);
 }

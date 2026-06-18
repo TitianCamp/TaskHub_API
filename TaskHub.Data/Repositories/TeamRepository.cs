@@ -90,4 +90,13 @@ public class TeamRepository
         }
         return false;
     }
+
+    public async Task<bool> IsOwner(Guid userId, Guid teamId)
+    {
+        return await _context
+            .TeamMembers.AnyAsync(tm => 
+                tm.UserId ==  userId && 
+                tm.TeamId == teamId && 
+                tm.Role == TeamRole.Owner);
+    }
 }

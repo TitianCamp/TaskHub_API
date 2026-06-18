@@ -5,9 +5,9 @@ namespace TaskHub.Business.Mappers;
 
 public static class TaskMapper
 {
-    public static TaskResponce ToDto(this TaskItem task)
+    public static TaskResponse ToDto(this TaskItem task)
     {
-        return new TaskResponce
+        return new TaskResponse
         {
             Id = task.Id,
             Title = task.Title,

@@ -1,6 +1,6 @@
 ﻿namespace TaskHub.Business.DataModels.TaskItem;
 
-public class TaskResponce
+public class TaskResponse
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;

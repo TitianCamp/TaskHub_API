@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using TaskHub.Business.DataModels.TaskItem;
 
 namespace TaskHub.API.Controllers;
@@ -61,20 +60,44 @@ public class TaskController : BaseApiController
     }
 
     [HttpPatch("{id}/take")]
-    public IActionResult TakeTask(Guid id)
+    public async Task<IActionResult> TakeTask(Guid id)
     {
-        return Ok($"Take task with ID: {id}");
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+
+        var result = await _taskService.TakeTask(id, userId.Value);
+
+        return SendResult(result);
     }
 
-    [HttpPatch("{id}/update")]
-    public IActionResult UpdateTask(Guid id)
+    [HttpPatch("{id}/finish")]
+    public async Task<IActionResult> FinishTask(Guid id)
     {
-        return Ok($"Update task with ID: {id}");
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+
+        var result = await _taskService.FinishTask(id, userId.Value);
+
+        return SendResult(result);
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteTask(Guid id)
+    public async Task<IActionResult> DeleteTask(Guid id)
     {
-        return Ok($"Delete task with ID: {id}");
+        Guid? userId = GetCurrentUser();
+        if (userId == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+
+        var result = await _taskService.DeleteTask(id, userId.Value);
+
+        return SendResult(result);
     }
 }
