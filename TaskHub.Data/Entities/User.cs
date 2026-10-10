@@ -4,27 +4,25 @@ namespace TaskHub.Data.Entities;
 
 public class User : IdentityUser<Guid>
 {
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public DateTime CreatedAt { get; init; }
 
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
-    public ICollection<TeamMember> TeamMemberships { get; set; } = [];
-    public ICollection<TaskItem> AuthoredTasks { get; set; } = [];
-    public ICollection<TaskItem> AssignedTasks { get; set; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
+    public ICollection<TeamMember> TeamMemberships { get; init; } = [];
+    public ICollection<TaskItem> AuthoredTasks { get; init; } = [];
+    public ICollection<TaskItem> AssignedTasks { get; init; } = [];
 
     public User()
-    { }
+    {
+    }
 
     public User(
-        string userName, string firstName, 
-        string lastName, string email)
+        string firstName,
+        string lastName)
     {
-        Id = Guid.NewGuid();
-        UserName = userName;
         FirstName = firstName;
         LastName = lastName;
-        Email = email;
         CreatedAt = DateTime.UtcNow;
     }
 }

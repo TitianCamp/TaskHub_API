@@ -2,13 +2,13 @@
 
 public class RefreshToken
 {
-    public Guid Id { get; set; }
-    public string Token { get; set; } = string.Empty;
-    public DateTime ExpiresAt { get; set; }
-    public Guid UserId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public Guid Id { get; init; }
+    public string Token { get; init; } = string.Empty;
+    public DateTime ExpiresAt { get; init; }
+    public Guid UserId { get; init; }
+    public DateTime CreatedAt { get; init; }
 
-    public User User { get; set; } = null!;
+    public User User { get; init; } = null!;
 
     public RefreshToken()
     { }

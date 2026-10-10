@@ -8,10 +8,13 @@ public static class UserMapper
     public static User ToEntity(this UserRegisterRequest request)
     {
         return new User(
-            request.UserName!,
             request.FirstName,
-            request.LastName,
-            request.Email);
+            request.LastName)
+        {
+            Id = Guid.NewGuid(),
+            UserName = request.UserName,
+            Email = request.Email,
+        };
     }
 
     public static UserRegisterResponce ToDto(this User user, string role)

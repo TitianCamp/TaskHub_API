@@ -6,16 +6,16 @@ public class Result<TValue>
     public string? Error { get; }
     public bool IsSuccess => Error == null;
 
-    protected Result(TValue? value, string? error)
+    private Result(TValue? value, string? error)
     {
         Value = value;
         Error = error;
     }
 
     public static Result<TValue> Success(TValue value) => 
-        new Result<TValue>(value, null);
+        new(value, null);
     public static Result<TValue> Failure(string error) => 
-        new Result<TValue>(default, error);
+        new(default, error);
 }
 
 public static class Result

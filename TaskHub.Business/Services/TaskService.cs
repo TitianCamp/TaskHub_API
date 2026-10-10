@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using TaskHub.Business.DataModels.TaskItem;
+﻿using TaskHub.Business.DataModels.TaskItem;
 using TaskHub.Business.Mappers;
 using TaskHub.Business.Results;
 using TaskHub.Data.Entities;
@@ -56,10 +55,10 @@ public class TaskService
                     "You are not a member of this team");
             }
 
-            IEnumerable<TaskItem> taskItems = await _taskRepository
-                .GetFilteredTasks(teamId, taskStatus, taskPriority);
+            IReadOnlyList<TaskItem> taskItems = [..await _taskRepository
+                    .GetFilteredTasks(teamId, taskStatus, taskPriority)];
 
-            if (taskItems == null || !taskItems.Any())
+            if (!taskItems.Any())
             {
                 return Result.Failure<List<TaskResponse>>("No tasks found");
             }
@@ -157,7 +156,7 @@ public class TaskService
                 return Result.Failure<TaskResponse>("Task is already finished");
             }
 
-            task.Status |= TaskItemStatus.Done;
+            task.Status = TaskItemStatus.Done;
 
             await _taskRepository.Update(task);
 
@@ -180,7 +179,7 @@ public class TaskService
                 return Result.Failure<string>("Task not found");
             }
 
-            if (task.AuthorId != userId || 
+            if (task.AuthorId != userId ||
                 !await IsUserTeamOwner(userId, task.TeamId))
             {
                 return Result.Failure<string>(
@@ -194,7 +193,7 @@ public class TaskService
         catch
         {
             return Result.Failure<string>(
-               "An error occurred while creating task");
+                "An error occurred while creating task");
         }
     }
 

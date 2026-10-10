@@ -34,11 +34,9 @@ public class JwtService : IJwtService
     {
         byte[] randomNumber = new byte[32];
 
-        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
     }
 
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)

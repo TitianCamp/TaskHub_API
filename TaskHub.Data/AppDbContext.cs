@@ -1,17 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskHub.Data.Entities;
 
 namespace TaskHub.Data;
 
-public class AppDbContext
-    : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
-
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<TeamMember> TeamMembers { get; set; }
     public DbSet<TaskItem> TaskItems { get; set; }
@@ -37,6 +33,12 @@ public class AppDbContext
             .HasConversion<string>();
 
         //Team Configuring
+        builder.Entity<Team>()
+            .Property(t => t.Name)
+            .HasMaxLength(128);
+        builder.Entity<Team>()
+            .Property(t => t.Description)
+            .HasMaxLength(512);
 
         //RefreshToken Configuring
         builder.Entity<RefreshToken>()
@@ -48,6 +50,9 @@ public class AppDbContext
         builder.Entity<RefreshToken>()
             .HasIndex(rt => rt.Token)
             .IsUnique();
+        builder.Entity<RefreshToken>()
+            .Property(rt => rt.Token)
+            .HasMaxLength(256);
 
         //TaskItem Configuring
         builder.Entity<TaskItem>()
@@ -75,6 +80,23 @@ public class AppDbContext
         builder.Entity<TaskItem>()
             .Property(ti => ti.Priority)
             .HasConversion<string>();
+        builder.Entity<TaskItem>()
+            .Property(ti => ti.Title)
+            .HasMaxLength(256);
+        builder.Entity<TaskItem>()
+            .Property(ti => ti.Description)
+            .HasMaxLength(1024);
+
+        //User Configuring
+        builder.Entity<User>(entity =>
+        {
+            entity
+                .Property(u => u.FirstName)
+                .HasMaxLength(50);
+            entity
+                .Property(u => u.LastName)
+                .HasMaxLength(50);
+        });
 
         base.OnModelCreating(builder);
     }

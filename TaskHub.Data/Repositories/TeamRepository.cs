@@ -81,14 +81,10 @@ public class TeamRepository
 
     public async Task<bool> IsMember(Guid userId, Guid teamId)
     {
-        TeamMember? finded = await _context
+        TeamMember? found = await _context
             .TeamMembers.FindAsync(userId, teamId);
 
-        if (finded != null)
-        {
-            return true;
-        }
-        return false;
+        return found != null;
     }
 
     public async Task<bool> IsOwner(Guid userId, Guid teamId)

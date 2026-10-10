@@ -1,10 +1,10 @@
 ﻿namespace TaskHub.Data.Repositories.Interfaces;
 
-public interface IRepository<Entity> where Entity : class
+public interface IRepository<TEntity> where TEntity : class
 {
-    Task<IEnumerable<Entity>> GetAll();
-    Task<Entity?> GetById(Guid id);
-    Task Add(Entity entity);
-    Task Update(Entity entity);
+    Task<IEnumerable<TEntity>> GetAll();
+    Task<TEntity?> GetById(Guid id);
+    Task Add(TEntity entity);
+    Task Update(TEntity entity);
     Task Delete(Guid id);
 }

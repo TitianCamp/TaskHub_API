@@ -2,13 +2,13 @@
 
 public class TeamMember
 {
-    public Guid UserId { get; set; }
-    public Guid TeamId { get; set; }
-    public TeamRole Role { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public Guid UserId { get; init; }
+    public Guid TeamId { get; init; }
+    public TeamRole Role { get; init; }
+    public DateTime CreatedAt { get; init; }
 
-    public User User { get; set; } = null!;
-    public Team Team { get; set; } = null!;
+    public User User { get; init; } = null!;
+    public Team Team { get; init; } = null!;
 
     public TeamMember()
     { }
