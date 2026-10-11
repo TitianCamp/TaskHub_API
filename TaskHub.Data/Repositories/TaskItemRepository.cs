@@ -4,39 +4,35 @@ using TaskHub.Data.Repositories.Interfaces;
 
 namespace TaskHub.Data.Repositories;
 
-public class TaskItemRepository
+public class TaskItemRepository(AppDbContext context) 
     : ITaskItemRepository
 {
-    private readonly AppDbContext _context;
-
-    public TaskItemRepository(AppDbContext context)
+    public async Task<IReadOnlyList<TaskItem>> GetAll()
     {
-        _context = context;
-    }
-
-    public async Task<IEnumerable<TaskItem>> GetAll()
-    {
-        return await _context.TaskItems
+        return await context.TaskItems
+            .AsNoTracking()
             .Include(ti =>ti.Author)
             .Include(ti => ti.AssignedUser)
-            .AsNoTracking()
             .ToListAsync();
     }
 
     public async Task<TaskItem?> GetById(Guid id)
     {
-        return await _context.TaskItems
+        return await context.TaskItems
+            .AsNoTracking()
             .Include(ti => ti.Author)
             .Include(ti => ti.AssignedUser)
             .FirstOrDefaultAsync(ti => ti.Id == id);
     }
 
-    public async Task<IEnumerable<TaskItem>> GetFilteredTasks(Guid teamId,
+    public async Task<IReadOnlyList<TaskItem>> GetFilteredTasks(Guid teamId,
         TaskItemStatus? taskStatus, TaskItemPriority? taskPriority)
     {
-        IQueryable<TaskItem> query = _context.TaskItems
+        IQueryable<TaskItem> query = context.TaskItems
             .AsNoTracking()
-            .Where(ti => ti.TeamId == teamId);
+            .Where(ti => ti.TeamId == teamId)
+            .Include(ti => ti.Author)
+            .Include(ti => ti.AssignedUser);
 
         if (taskStatus.HasValue)
         {
@@ -51,42 +47,44 @@ public class TaskItemRepository
         return await query.ToListAsync();
     }
 
-    public async Task<IEnumerable<TaskItem>> GetForTeam(Guid teamId)
+    public async Task<IReadOnlyList<TaskItem>> GetForTeam(Guid teamId)
     {
-        return await _context.TaskItems
+        return await context.TaskItems
             .AsNoTracking()
             .Where(ti => ti.TeamId == teamId)
+            .Include(ti => ti.Author)
+            .Include(ti => ti.AssignedUser)
             .ToListAsync();
     }
 
     public async Task Add(TaskItem entity)
     {
-        await _context.TaskItems.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await context.TaskItems.AddAsync(entity);
+        await context.SaveChangesAsync();
     }
 
     public async Task Update(TaskItem entity)
     {
-        var trackedEntity = _context.TaskItems.Local
+        var trackedEntity = context.TaskItems.Local
             .FirstOrDefault(ti => ti.Id == entity.Id);
 
         if (trackedEntity != null)
         {
-            _context.Entry(trackedEntity).State = EntityState.Detached;
+            context.Entry(trackedEntity).State = EntityState.Detached;
         }
 
-        _context.TaskItems.Update(entity);
-        await _context.SaveChangesAsync();
+        context.TaskItems.Update(entity);
+        await context.SaveChangesAsync();
     }
 
     public async Task Delete(Guid id)
     {
-        TaskItem? taskItem = await _context.TaskItems.FindAsync(id);
+        TaskItem? taskItem = await context.TaskItems.FindAsync(id);
 
         if (taskItem != null)
         {
-            _context.TaskItems.Remove(taskItem);
-            await _context.SaveChangesAsync();
+            context.TaskItems.Remove(taskItem);
+            await context.SaveChangesAsync();
         }
     }
 }

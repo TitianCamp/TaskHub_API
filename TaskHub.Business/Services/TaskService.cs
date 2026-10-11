@@ -121,8 +121,8 @@ public class TaskService
                     "This task is already assigned to another user");
             }
 
-            task.AssignedUserId = userId;
-            task.Status = TaskItemStatus.InProgress;
+            task.AssignTask(userId);
+            task.ChangeStatus(TaskItemStatus.InProgress);
 
             await _taskRepository.Update(task);
 
@@ -156,7 +156,7 @@ public class TaskService
                 return Result.Failure<TaskResponse>("Task is already finished");
             }
 
-            task.Status = TaskItemStatus.Done;
+            task.ChangeStatus(TaskItemStatus.Done);
 
             await _taskRepository.Update(task);
 
